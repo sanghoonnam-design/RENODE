@@ -1,0 +1,12 @@
+# 부트로더 파라미터(0x08018000, ISBC_Bootloader bootloader.c의 BootParamInfo_t): 앱 다운로드·확정 완료 상태.
+# Renode는 내부 Flash 지우기/쓰기를 하지 않으므로 부트로더가 저장했을 값을 미리 써 둔다.
+# magic
+sysbus WriteDoubleWord 0x08018000 0xABCDABCD
+# appDownloaded, appConfirmed
+sysbus WriteDoubleWord 0x08018004 2
+sysbus WriteDoubleWord 0x08018008 2
+# netInfo: IP 192.168.0.100, 서브넷 255.255.255.0, 게이트웨이 192.168.0.1
+sysbus WriteDoubleWord 0x0801800C 0x6400A8C0
+sysbus WriteDoubleWord 0x08018010 0x00FFFFFF
+sysbus WriteDoubleWord 0x08018014 0x0100A8C0
+sysbus WriteWord 0x08018018 80

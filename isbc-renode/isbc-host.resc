@@ -1,0 +1,17 @@
+# PC에서 가상 ISBC 보드에 접속하는 연결(isbc.resc 다음에 include).
+# 포트를 바꾸려면 include 전에 아래 변수를 지정한다. 같은 PC에서 여러 Renode를 띄울 때는 포트가 겹치지 않게 한다.
+#   $global.appGuestPort : 펌웨어가 여는 TCP 명령 포트(W5300 쪽)
+#   $global.appTcpPort   : 그 포트를 PC의 127.0.0.1 어느 포트로 열지
+#   $global.httpTcpPort  : 펌웨어 웹 서버(80)를 PC의 어느 포트로 열지
+#   $global.boardHttpPort: 3D 보드 화면 포트
+$global.appGuestPort?=8000
+$global.appTcpPort?=18000
+$global.httpTcpPort?=18080
+$global.boardHttpPort?=18100
+sysbus.w5300 ExposeTcpPort $global.appGuestPort $global.appTcpPort
+sysbus.w5300 ExposeTcpPort 80 $global.httpTcpPort
+
+# 3D 보드 화면: LED0~3(PG4, PG5, PC4, PC5) 상태를 보여 준다.
+include $ORIGIN/ISBC_LedView.cs
+machine LoadPlatformDescription $ORIGIN/isbc-board.repl
+sysbus.gpioPortG.ledView OpenHttp $ORIGIN/board-view $global.boardHttpPort

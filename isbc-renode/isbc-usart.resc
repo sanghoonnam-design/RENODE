@@ -1,0 +1,7 @@
+# isbc-board.resc와 같은 가상 보드에 USART1(USB CLI 콘솔) 창을 더 열고 바로 실행한다.
+# Renode Monitor에서:  include @<이 폴더 경로>/isbc-usart.resc
+# 이 보드에서도 TCP(18000)와 3D 보드 화면(18100)을 함께 쓸 수 있다.
+Clear
+include $ORIGIN/isbc-board.resc
+showAnalyzer sysbus.usart1
+start

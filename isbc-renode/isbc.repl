@@ -1,0 +1,46 @@
+// ISBC 보드 (CYSCO ISBC 회로도 V0.4, 2025-09-26) Renode 플랫폼.
+// 앱(팀별 펌웨어)이나 기구물은 여기 넣지 않는다. 앱은 isbc-app.resc, 기구물은 각 앱 폴더에서 붙인다.
+using "./stm32f746-offline.repl"
+
+backupSram: Memory.MappedMemory @ sysbus 0x40024000
+    size: 0x1000
+
+// UART4 = TS_TXD/RXD(PA0/PA1) → 절연 RS232(sheet 7).
+uart4: UART.STM32F7_USART @ sysbus 0x40004C00
+    frequency: 54000000
+    IRQ -> nvic@52
+
+// USART1 = UCOM(PA9/PA10) → FT230X USB 시리얼(CLI 콘솔).
+usart1:
+    frequency: 108000000
+
+// USART2 = RS485(PA2/PA3, DE = PB0).
+usart2:
+    frequency: 54000000
+
+// SPI4/5는 펌웨어의 8비트 packed 전송을 처리하는 ISBC_Spi로 둔다(SPI1은 isbc-pcb2.repl).
+spi4: SPI.ISBC_Spi @ sysbus 0x40013400
+    IRQ -> nvic@84
+
+spi5: SPI.ISBC_Spi @ sysbus 0x40015000
+    IRQ -> nvic@85
+
+// U2 AT24C256 EEPROM, I2C1(PB6/PB7), A0~A2 = GND → 0x50.
+eeprom: I2C.ISBC_Eeprom @ i2c1 0x50
+
+// W5300 이더넷(sheet 5), FMC NE3(PG10) 16비트, ET_RST = PG8(Low = 리셋).
+w5300: Network.ISBC_W5300 @ sysbus 0x68000000
+
+gpioPortG:
+    8 -> w5300@0
+
+// TIM6 = HAL tick(APB1 타이머 108 MHz).
+timer6:
+    frequency: 108000000
+
+// TIM2 = 앱 태스크 스케줄, TIM5 = 실행 시간 측정.
+timer2:
+    frequency: 108000000
+
+timer5:
+    frequency: 108000000

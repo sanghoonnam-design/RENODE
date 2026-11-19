@@ -1,0 +1,9 @@
+ledView: Miscellaneous.ISBC_LedView @ gpioPortG 4
+
+gpioPortG:
+    4 -> ledView@0
+    5 -> ledView@1
+
+gpioPortC:
+    4 -> ledView@2
+    5 -> ledView@3

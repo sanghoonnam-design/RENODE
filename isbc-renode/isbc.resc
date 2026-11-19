@@ -1,0 +1,34 @@
+# ISBC 보드 + 부트로더. 앱 없이 이것만 실행하면 실기에 부트로더만 구운 상태와 같다.
+# 실행 순서: isbc.resc(보드) → isbc-app.resc(앱 굽기) → isbc-host.resc(PC 연결). 한 번에 하려면 isbc-board.resc.
+mach create "ISBC"
+include $ORIGIN/ISBC_Eeprom.cs
+include $ORIGIN/ISBC_W5300.cs
+include $ORIGIN/ISBC_Spi.cs $ORIGIN/ISBC_Motion.cs $ORIGIN/ISBC_IoExpander.cs
+machine LoadPlatformDescription $ORIGIN/isbc.repl
+sysbus UnregisterFromAddress 0x40013000
+machine LoadPlatformDescription $ORIGIN/isbc-pcb2.repl
+
+# USART1 보정(펌웨어 수정 없이 실기와 같은 동작을 맞춘다):
+# 1) IUART.c의 USART1_IRQHandler는 RDR을 읽기 전에 RQR.RXFRQ(0x08)를 쓴다. 실기는 RXNE만 지우고 RDR 값은 남지만
+#    Renode USART 모델은 데이터를 비워 0x00이 읽힌다. 그래서 RQR(0x18)의 RXFRQ 쓰기를 무시한다.
+# 2) Renode USART 창의 Backspace는 DEL(0x7F)을 보낸다. 실기 터미널(Tera Term 기본값)처럼 BS(0x08)로 바꿔 RDR(0x24)에서 읽히게 한다.
+sysbus SetHookBeforePeripheralWrite sysbus.usart1 "value = (value & ~0x8) if offset == 0x18 else value"
+sysbus SetHookAfterPeripheralRead sysbus.usart1 "value = 0x08 if (offset == 0x24 and (value & 0xFF) == 0x7F) else value"
+
+# 보드 입력 핀의 기본 상태(회로도 sheet 4). Renode GPIO 입력은 기본 Low라서 풀업 핀은 High로 맞춘다.
+# PC13 SD_DT: SD 카드 없음(47K 풀업 → High).
+sysbus.gpioPortC OnGPIO 13 true
+# PG0~PG3 PSW0~3(S6 DIP, 10K 풀업): 모두 OFF = High. 스위치를 ON으로 하려면 해당 줄을 false로 바꾼다.
+sysbus.gpioPortG OnGPIO 0 true
+sysbus.gpioPortG OnGPIO 1 true
+sysbus.gpioPortG OnGPIO 2 true
+sysbus.gpioPortG OnGPIO 3 true
+
+# EEPROM 내용을 파일에 저장해 Renode를 다시 켜도 유지한다(실기 EEPROM과 같은 동작). 파일을 지우면 빈 EEPROM으로 시작한다.
+# 앱마다 따로 두려면 include 전에 $global.eepromFile을 지정한다.
+$global.eepromFile?=$ORIGIN/isbc-eeprom.bin
+sysbus.i2c1.eeprom BackingFile $global.eepromFile
+
+# 부트로더(ISBC_Bootloader_260413_latest Debug 빌드). 0x08000000에서 시작한다.
+sysbus LoadELF $ORIGIN/ISBC_Bootloader.elf
+sysbus.cpu VectorTableOffset 0x08000000

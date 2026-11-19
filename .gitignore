@@ -1,0 +1,8 @@
+# 실행용 런타임은 크기 때문에 git에 넣지 않는다(Releases의 zip에 포함).
+/python/
+/renode_1.17.0-portable/
+
+# 실행 중 생기는 파일
+/isbc-renode/isbc-eeprom.bin
+__pycache__/
+*.zip

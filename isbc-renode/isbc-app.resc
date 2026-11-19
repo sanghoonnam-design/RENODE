@@ -1,0 +1,8 @@
+# 부트로더 위에 팀 앱을 굽는다(isbc.resc 다음에 include). 실기에서 부트로더 웹 페이지로 앱을 올리고 확정한 상태와 같다.
+# 다른 앱을 올리려면 include 전에 $global.appElf에 그 앱의 STM32CubeIDE Debug 빌드 ELF 경로를 지정한다.
+# 기본값은 패키지에 함께 넣은 예시 앱(apps/Vial_Decapper.elf)이다.
+$global.appElf?=$ORIGIN/../apps/Vial_Decapper.elf
+sysbus LoadELF $global.appElf
+include $ORIGIN/confirmed-app.resc
+# 앱 ELF를 올려도 전원 투입 시 시작점은 부트로더다. 부트로더가 앱 확정 정보를 보고 0x08040000 앱으로 점프한다.
+sysbus.cpu VectorTableOffset 0x08000000

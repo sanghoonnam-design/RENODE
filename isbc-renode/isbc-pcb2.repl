@@ -1,0 +1,31 @@
+// ISBC PCB_2 (J10 보드 간 커넥터로 연결): 모션(TMC429, TMC2660 x2)과 IO(MCP23S17 x2).
+// SPI1은 베이스 MCU 파일에 Renode 기본 STM32SPI로 선언돼 있어서, isbc.resc가 주소에서 내린 뒤 여기서 ISBC_Spi로 다시 올린다.
+spi1: SPI.ISBC_Spi @ sysbus 0x40013000
+    IRQ -> nvic@35
+
+// U6 TMC429 모션 컨트롤러, SPI5, T429_NCS = PF6.
+tmc429: SPI.ISBC_Tmc429 @ spi5
+
+// U7/U8 TMC2660 드라이버, SPI4. NCS0 = PE3, NCS1 = PE4, EN0 = PE0, EN1 = PE1.
+tmc2660: SPI.ISBC_Tmc2660 @ spi4
+    controller: tmc429
+
+// U16/U17 MCP23S17 IO 확장, SPI1. IN_NCS = PA8, OUT_NCS = PA4, IO_NRST = PB2.
+// 입력 IN0~15 = io@16~31, 출력 OUT0~15 = io Connections 0~15.
+io: SPI.ISBC_IoExpander @ spi1
+
+gpioPortA:
+    8 -> io@0
+    4 -> io@1
+
+gpioPortB:
+    2 -> io@2
+
+gpioPortE:
+    3 -> tmc2660@0
+    4 -> tmc2660@1
+    0 -> tmc2660@2
+    1 -> tmc2660@3
+
+gpioPortF:
+    6 -> tmc429@0

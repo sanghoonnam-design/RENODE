@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>ISBC 보드 · LED 모니터</title>
+  <link rel="stylesheet" href="/board.css">
+  <script type="importmap">{"imports":{"three":"/three.module.min.js"}}</script>
+  <script type="module" src="/board.js"></script>
+</head>
+<body>
+  <main>
+    <header class="header">
+      <div>
+        <p class="caption">ISBC<span> / </span>RENODE</p>
+        <h1>ISBC 보드</h1>
+      </div>
+      <div id="connection" class="connection" role="status">
+        <span class="connection-dot"></span><span id="connection-text">Renode 연결 확인 중</span>
+      </div>
+    </header>
+    <div class="workspace">
+      <section class="viewport" aria-label="회전 가능한 ISBC 보드">
+        <div id="board"></div>
+        <div class="viewport-toolbar">
+          <span class="board-size">100 × 80 mm</span>
+          <div class="view-controls" aria-label="보드 시점">
+            <button id="top-view" type="button" aria-pressed="false">상면</button>
+            <button id="iso-view" type="button" aria-pressed="true">3D</button>
+          </div>
+        </div>
+        <div id="marker" hidden aria-hidden="true"></div>
+        <div id="render-error" class="render-error" hidden>브라우저에서 3D 화면을 열 수 없습니다.</div>
+        <div class="viewport-footer">드래그로 회전<span></span>휠로 확대</div>
+      </section>
+      <section class="led-panel" aria-labelledby="led-title">
+        <h2 id="led-title">상태 LED</h2>
+        <p class="led-subtitle">GPIO LOW에서 점등</p>
+        <div id="leds" class="led-list"></div>
+      </section>
+    </div>
+    <p class="note">상면 사진 PCB_1 V0.3 · LED 회로 ISBC V0.4 · 부품 높이 근사</p>
+  </main>
+</body>
+</html>
